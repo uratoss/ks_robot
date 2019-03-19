@@ -1,0 +1,37 @@
+<launch>
+  <master auto="start"/>
+  
+  <include file="$(find kosen_navigation)/launch/move_base.launch">
+    <arg name="no_static_map" value="true"/>
+  </include>
+  <include file="$(find kosen_navigation)/launch/amcl.launch"/>  
+
+  <!-- node name="map_server" pkg="map_server" type="map_server" args="$(find kosen_navigation)/map/map.yaml" respawn="false" / -->
+  
+  <node name="kosen_tf" pkg="tf" type="static_transform_publisher" args="0 0 0.5 0 0 3.14 base_link base_laser_link 100"/>
+  
+  <arg name="arduino1" default="/dev/ttyUSB0"/>
+  <node  name="rosserial_R"  pkg="rosserial_python"  type="serial_node.py">
+    <param name="port" type="str" value="$(arg arduino1)"/>
+  </node>
+  <arg name="arduino2" default="/dev/ttyACM0"/>
+  <node  name="rosserial_L"  pkg="rosserial_python"  type="serial_node.py">
+    <param name="port" type="str" value="$(arg arduino2)"/>
+  </node>
+
+  <node name="kosen_odom" pkg="kosen_odom" type="kosen_odom" />
+  <node name="kosen_driver" pkg="kosen_driver" type="kosen_driver" output="screen"/>
+  
+  <arg name="lidar" default="/dev/ttyUSB1"/>
+  <node name="rplidarNode"  pkg="rplidar_ros" type="rplidarNode" output="screen">
+    <remap from="scan" to="base_scan"/>
+    <param name="serial_port"       type="string" value="$(arg lidar)"/>
+    <param name="serial_baudrate"   type="int"    value="115200"/>
+    <param name="frame_id"          type="string" value="base_laser_link"/>
+    <param name="inverted"          type="bool"   value="false"/>
+    <param name="angle_compensate"  type="bool"   value="true"/>
+  </node>
+  
+   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find kosen_navigation)/rviz/single_robot.rviz" />
+
+</launch>

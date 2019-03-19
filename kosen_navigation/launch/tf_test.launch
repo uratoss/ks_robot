@@ -1,0 +1,15 @@
+<launch>
+  <master auto="start"/>
+  <node pkg="tf" type="static_transform_publisher" name="kosen_tf" args="1 0 0 0 0 3.14 base_link base_laser_link 100"/>
+  <arg name="arduino1" default="/dev/ttyUSB0"/>
+  <node  name="rosserial_R"  pkg="rosserial_python"  type="serial_node.py">
+    <param name="port" type="str" value="$(arg arduino1)"/>
+  </node>
+  <arg name="arduino2" default="/dev/ttyACM0"/>
+  <node  name="rosserial_L"  pkg="rosserial_python"  type="serial_node.py">
+    <param name="port" type="str" value="$(arg arduino2)"/>
+  </node>
+
+  <node name="kosen_odom" pkg="kosen_odom" type="kosen_odom" />
+  <node name="kosen_driver" pkg="kosen_driver" type="kosen_driver" output="screen"/>
+ </launch>
