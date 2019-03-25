@@ -1,0 +1,3 @@
+<launch>
+    <node name="kosen_waypoint" pkg="kosen_waypoint" type="kosen_waypoint_manager" output="screen"/>
+</launch>
