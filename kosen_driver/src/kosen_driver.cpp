@@ -9,7 +9,7 @@
 class kosen_driver {
 public:
   kosen_driver()
-      : rate_(50), d_(0.5), dw_(0.15), Kp_(230), Ki_(350), Kd_(0.1), dt_(0.1),
+      : rate_(50), d_(0.17), dw_(0.11), Kp_(100), Ki_(150), Kd_(0.1), dt_(0.1),
         duty_l_(0.0), duty_r_(0.0) {
 
     cmd_sub_ = nh_.subscribe("/cmd_vel", 10, &kosen_driver::cmd_callback, this);
@@ -36,7 +36,7 @@ public:
       speed_r_ = (1000000.0 / (encr.time * 15.0));
       speed_r_ =
           (speed_r_ / 60) * (boost::math::constants::pi<double>() * dw_ * 2);
-      if (encr.dir) {
+      if (!encr.dir) {
         speed_r_ *= -1;
       }
     }
@@ -55,24 +55,22 @@ public:
   }
   void publish_speed_callback(const ros::TimerEvent &) {
     v_ = (speed_r_ + speed_l_) / 2.0;
-    vth_ = (speed_r_ - speed_l_) / 2.0 * d_;
+    vth_ = (speed_r_ - speed_l_) / (2.0 * d_);
     speed_.linear.x = v_;
     speed_.angular.z = vth_;
     speed_pub_.publish(speed_);
   }
 
   void publish_cmd_callback(const ros::TimerEvent &) {
+    ROS_INFO_STREAM("========================================================");
     {
       kosen_msgs::Op right;
       double cmd_r = (cmd_.linear.x + d_ * cmd_.angular.z);
-      ROS_INFO("========================================================");
-      ROS_INFO("cmd_r : %f", cmd_r);
-      ROS_INFO("speed_r : %f", speed_r_);
       if (cmd_r < 0) {
         cmd_r *= -1;
-        right.dir = 1;
-      } else {
         right.dir = 0;
+      } else {
+        right.dir = 1;
       }
       double speed_r = speed_r_;
       if (speed_r < 0) {
@@ -89,16 +87,16 @@ public:
       } else if (duty_r_ < 0) {
         duty_r_ = 0;
       }
-      ROS_INFO("duty_r : %d", duty_r_);
+      ROS_INFO_STREAM("cmd_r : " << cmd_r << " ,speed_r : " << speed_r_
+                                 << " ,duty_r : " << duty_r_);
       right.duty = duty_r_;
       right_pub_.publish(right);
     }
     {
       kosen_msgs::Op left;
       double cmd_l = (cmd_.linear.x - d_ * cmd_.angular.z);
-      ROS_INFO("-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-");
-      ROS_INFO("cmd_l : %f", cmd_l);
-      ROS_INFO("speed_l : %f", speed_l_);
+      ROS_INFO_STREAM(
+          "-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-");
       if (cmd_l < 0) {
         cmd_l *= -1;
         left.dir = 1;
@@ -119,10 +117,12 @@ public:
       } else if (duty_l_ < 0) {
         duty_l_ = 0;
       }
-      ROS_INFO("duty_l : %d", duty_l_);
+      ROS_INFO_STREAM("cmd_l : " << cmd_l << " ,speed_l : " << speed_l_
+                                 << " ,duty_l : " << duty_l_);
       left.duty = duty_l_;
       left_pub_.publish(left);
     }
+    ROS_INFO_STREAM("========================================================");
   }
 
   void run() {

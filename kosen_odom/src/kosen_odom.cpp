@@ -27,15 +27,17 @@ public:
     y_ += delta_y;
     th_ += delta_th;
 
-    ROS_INFO("Arduino send: vx: %f  vy: %f  vz: %f", vx_, vy_, vth_);
-    ROS_INFO("Odom        : x: %f  y: %f  z: %f", x_, y_, th_);
+    ROS_INFO_STREAM("Arduino speed: vx: " << vx_ << " ,vy: " << vy_
+                                          << " ,vth: " << vth_);
+    ROS_INFO_STREAM("Arduino  odom: x: " << x_ << " ,y: " << y_
+                                         << " ,th: " << th_);
 
     geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(th_);
 
     geometry_msgs::TransformStamped odom_trans;
     odom_trans.header.stamp = current_time;
     odom_trans.header.frame_id = "odom";
-    odom_trans.child_frame_id = "base_link"; //"base_footprint";
+    odom_trans.child_frame_id = "base_link";
 
     odom_trans.transform.translation.x = x_;
     odom_trans.transform.translation.y = y_;
@@ -82,7 +84,7 @@ private:
 };
 
 int main(int argc, char **argv) {
-  ros::init(argc, argv, "robocon_odometry_publisher");
+  ros::init(argc, argv, "odometry_publisher");
   kosen_odom odom;
 
   odom.run();

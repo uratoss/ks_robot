@@ -3,11 +3,11 @@
    <param name="/use_sim_time" value="true"/>
 
    <include file="$(find kosen_navigation)/launch/move_base.launch">
-    <arg name="no_static_map" value="true"/>
+    <!--arg name="no_static_map" value="true"/-->
    </include>
    <include file="$(find kosen_navigation)/launch/amcl.launch"/>  
 
-   <!--node name="map_server" pkg="map_server" type="map_server" args="$(find kosen_navigation)/map/map.yaml" respawn="false" /-->
+   <node name="map_server" pkg="map_server" type="map_server" args="$(find kosen_navigation)/map/map.yaml" respawn="false" />
 
    <node pkg="stage_ros" type="stageros" name="stageros" 
           args="$(find stage_ros)/world/willow-erratic.world" respawn="false" >
@@ -15,5 +15,10 @@
    </node>
 
    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find kosen_navigation)/rviz/single_robot.rviz" />
+
+   <node pkg="timed_roslaunch" type="timed_roslaunch.sh" 
+     args="15 kosen_waypoint manage.launch" 
+     name="timed_roslaunch" output="screen">
+   </node>
 
 </launch>

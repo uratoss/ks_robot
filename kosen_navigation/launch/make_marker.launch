@@ -1,0 +1,11 @@
+<launch>
+   <master auto="start"/>
+   <!--param name="/use_sim_time" value="true"/-->
+
+   <node name="map_server" pkg="map_server" type="map_server" args="$(find kosen_waypoint)/map/map.yaml" respawn="false" />
+   <!--node name="map_server" pkg="map_server" type="map_server" args="$(find kosen_waypoint)/map/tuyoi2.yaml" respawn="false" /-->
+
+   <node name="kosen_waypoint" pkg="kosen_waypoint" type="kosen_waypoint_maker" output="screen"/>
+
+   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find kosen_waypoint)/rviz/waypoint.rviz"/>
+</launch>

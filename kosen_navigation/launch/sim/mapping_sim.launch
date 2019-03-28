@@ -1,0 +1,18 @@
+<launch>
+  <master auto="start"/>
+  <param name="/use_sim_time" value="true"/>
+  <include file="$(find kosen_navigation)/launch/gmapping.launch"/>
+
+  <node pkg="stage_ros" type="stageros" name="stageros" 
+         args="$(find stage_ros)/world/willow-erratic.world" respawn="false" >
+   　　　<param name="base_watchdog_timeout" value="0.2"/>
+  </node>
+
+  <node  name="joy"   pkg="joy"   type="joy_node">
+    <param name="dev" type="string" value="/dev/input/js0" />
+  </node>
+
+  <node name="kosen_joy" pkg="kosen_joy" type="kosen_joy" output="screen"/>
+   
+   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find my_navigation)/mapping.rviz" />
+</launch>

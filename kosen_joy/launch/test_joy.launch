@@ -1,0 +1,14 @@
+<launch>
+  <master auto="start"/>
+
+  <node  name="joy"   pkg="joy"   type="joy_node">
+    <param name="dev" type="string" value="/dev/input/js0" />
+  </node>
+  <node name="kosen_joy" pkg="kosen_joy" type="kosen_joy" output="screen"/>
+
+  <node pkg="stage_ros" type="stageros" name="stageros" 
+         args="$(find stage_ros)/world/willow-erratic.world" respawn="false" >
+   　　　<param name="base_watchdog_timeout" value="0.2"/>
+  </node>
+
+</launch>

@@ -1,16 +1,18 @@
 <launch>
   <master auto="start"/>
-  <include file="$(find my_navigation)/config/slam_gmapping.xml"/>
+  <include file="$(find kosen_navigation)/launch/gmapping.launch"/>
 
   <node name="kosen_odom" pkg="kosen_odom" type="kosen_odom" />
-  <node name="kosen_tf" pkg="tf" type="static_transform_publisher" args="0 0 0.5 0 0 3.14 base_link base_laser_link 100"/>
+  <node name="kosen_tf" pkg="tf" type="static_transform_publisher" args="0 0 0.5 0 0 0 base_link base_laser_link 100"/>
   <node name="kosen_driver" pkg="kosen_driver" type="kosen_driver" output="screen"/>
 
   <node  name="joy"   pkg="joy"   type="joy_node">
     <param name="dev" type="string" value="/dev/input/js0" />
   </node>
 
-  <arg name="arduino1" default="/dev/ttyUSB0"/>
+  <node name="kosen_joy" pkg="kosen_joy" type="kosen_joy" output="screen"/>
+   
+  <arg name="arduino1" default="/dev/ttyACM1"/>
   <node  name="rosserial_R"  pkg="rosserial_python"  type="serial_node.py">
     <param name="port" type="str" value="$(arg arduino1)"/>
   </node>
@@ -25,6 +27,7 @@
     <param name="frame_id"            type="string" value="base_laser_link"/>
     <param name="inverted"            type="bool"   value="false"/>
     <param name="angle_compensate"    type="bool"   value="true"/>
+    <remap from="scan" to="base_scan"/>
   </node>
 
    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find my_navigation)/mapping.rviz" />

@@ -1,4 +1,6 @@
+#include <actionlib/client/simple_action_client.h>
 #include <fstream>
+#include <move_base_msgs/MoveBaseAction.h>
 #include <ros/ros.h>
 #include <string>
 
@@ -8,8 +10,11 @@
 
 class kosen_waypoint_manager {
 public:
+  using MoveBaseClient =
+      actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction>;
+
   kosen_waypoint_manager(std::string filename)
-      : rate_(50), filename_(filename) {
+      : rate_(50), filename_(filename), action_("move_base", true) {
     marker_pub_ = nh_.advertise<visualization_msgs::MarkerArray>(
         "/marker_array", 1, true);
     load_waypoint();
@@ -64,6 +69,30 @@ public:
     //     nh_.createTimer(ros::Duration(1),
     //                     &kosen_waypoint_manager::publish_marker_callback,
     //                     this);
+    while (!action_.waitForServer(ros::Duration(5.0))) {
+      ROS_INFO("Waiting for the move_base action server to come up");
+    }
+    move_base_msgs::MoveBaseGoal goal;
+    // goal.target_pose.header.frame_id = "base_link";
+    goal.target_pose.header.frame_id = "map";
+    for (auto it = marker_array_.markers.begin();
+         it != marker_array_.markers.end(); it += 2) {
+      goal.target_pose.header.stamp = ros::Time::now();
+      goal.target_pose.pose = it->pose;
+
+      ROS_INFO_STREAM("Sending goal" << goal.target_pose.pose);
+      ROS_INFO_STREAM(*it);
+
+      action_.sendGoal(goal);
+
+      action_.waitForResult();
+
+      if (action_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
+        ROS_INFO("Hooray, the base moved 1 meter forward");
+      } else {
+        ROS_INFO("The base failed to move forward 1 meter for some reason");
+      }
+    }
     while (ros::ok()) {
       ros::spinOnce();
       rate_.sleep();
@@ -76,6 +105,7 @@ private:
   ros::Publisher marker_pub_;
   visualization_msgs::MarkerArray marker_array_;
   std::string filename_;
+  MoveBaseClient action_;
 };
 
 int main(int argc, char **argv) {
