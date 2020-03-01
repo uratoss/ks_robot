@@ -1,7 +1,7 @@
 #include <actionlib/client/simple_action_client.h>
-#include <fstream>
 #include <move_base_msgs/MoveBaseAction.h>
 #include <ros/ros.h>
+#include <fstream>
 #include <string>
 
 #include "geometry_msgs/PoseStamped.h"
@@ -9,7 +9,7 @@
 #include "visualization_msgs/MarkerArray.h"
 
 class kosen_waypoint_manager {
-public:
+ public:
   using MoveBaseClient =
       actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction>;
 
@@ -50,14 +50,18 @@ public:
       marker.scale.z = 0.05;
       marker.id = id++;
       marker_array_.markers.push_back(marker);
-      marker.type = visualization_msgs::Marker::CYLINDER;
-      marker.scale.x = 0.25;
-      marker.scale.y = 0.25;
-      marker.scale.z = 0.25;
+      // marker.type = visualization_msgs::Marker::CYLINDER;
+      // marker.scale.x = 0.25;
+      // marker.scale.y = 0.25;
+      // marker.scale.z = 0.25;
+      // marker.id = id++;
+      // marker_array_.markers.push_back(marker);
+      marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+      marker.text = std::to_string(id / 3);
       marker.id = id++;
       marker_array_.markers.push_back(marker);
     }
-    ROS_INFO_STREAM(marker_array_);
+    // ROS_INFO_STREAM(marker_array_);
   }
 
   // void publish_marker_callback(const ros::TimerEvent &) {
@@ -92,6 +96,10 @@ public:
       } else {
         ROS_INFO("The base failed to move forward 1 meter for some reason");
       }
+      it->action = visualization_msgs::Marker::DELETE;
+      (it + 1)->action = visualization_msgs::Marker::DELETE;
+      //(it + 2)->action = visualization_msgs::Marker::DELETE;
+      marker_pub_.publish(marker_array_);
     }
     while (ros::ok()) {
       ros::spinOnce();
@@ -99,7 +107,7 @@ public:
     }
   }
 
-private:
+ private:
   ros::NodeHandle nh_;
   ros::Rate rate_;
   ros::Publisher marker_pub_;

@@ -1,5 +1,5 @@
-#include <fstream>
 #include <ros/ros.h>
+#include <fstream>
 #include <string>
 
 #include "geometry_msgs/PoseStamped.h"
@@ -7,7 +7,7 @@
 #include "visualization_msgs/MarkerArray.h"
 
 class kosen_waypoint_maker {
-public:
+ public:
   kosen_waypoint_maker(std::string filename)
       : rate_(50), id_(0), filename_(filename) {
     std::ofstream waypoint_file(filename_);
@@ -73,7 +73,7 @@ public:
     }
   }
 
-private:
+ private:
   // ros
   ros::NodeHandle nh_;
   ros::Rate rate_;

@@ -1,0 +1,14 @@
+controller_frequency: 10.0
+planner_frequency: 0.0
+recovery_behaviour_enabled: true
+planner_patience: 5.0
+controller_patience: 3.0
+oscillation_timeout: 5.0
+oscillation_distance: 0.2
+max_planning_retries: 3  
+#recovery_behaviors: [
+#    {name: conservative_reset, type: clear_costmap_recovery/ClearCostmapRecovery},
+#    {name: rotate_recovery, type: rotate_recovery/RotateRecovery},
+#    {name: aggressive_reset, type: clear_costmap_recovery/ClearCostmapRecovery}
+#    ]
+shutdown_costmaps: false 
